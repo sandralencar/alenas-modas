@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { after, before, test } = require('node:test');
@@ -32,7 +33,7 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
   const html = await response.text();
 
   assert.equal(response.status, 200);
-  assert.match(html, /Mais de 25 anos celebrando <em>você\.<\/em>/);
+  assert.match(html, /Mais de 25 anos entregando <em>qualidade\.<\/em>/);
   assert.match(html, /Concluir pedido no WhatsApp/);
   assert.match(html, /data-whatsapp-number="5588988573785"/);
   assert.match(html, /data-add-to-cart/);
@@ -47,7 +48,7 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
   assert.match(html, /data-cart-total/);
   assert.match(html, /3 sutiãs por <strong>R\$ 99,90<\/strong>/);
   assert.match(html, /Frete grátis para Itapevi\/SP/);
-  assert.match(html, /Mais de 25 anos celebrando/);
+  assert.match(html, /Mais de 25 anos entregando/);
   assert.match(html, /uma história feita à mão, com cuidado em cada costura/i);
   assert.match(html, /texturas de alta qualidade/i);
   assert.match(html, /spring-promo__images/);
@@ -92,4 +93,34 @@ test('links de imagens do pedido apontam para os arquivos públicos do repositó
   const storefrontScript = fs.readFileSync(path.join(__dirname, '..', 'src', 'public', 'js', 'main.js'), 'utf8');
   assert.match(storefrontScript, /raw\.githubusercontent\.com\/sandralencar\/alenas-modas\/main\/src\/public/);
   assert.match(storefrontScript, /shareImage/);
+});
+
+test('build estático preserva catálogo, regras e caminhos para GitHub Pages', () => {
+  const projectRoot = path.join(__dirname, '..');
+  execFileSync(process.execPath, [path.join(projectRoot, 'scripts', 'build-static.js')], {
+    cwd: projectRoot,
+    env: { ...process.env, BASE_PATH: '/alenas-modas' },
+    stdio: 'pipe'
+  });
+
+  const outputDirectory = path.join(projectRoot, 'dist');
+  const html = fs.readFileSync(path.join(outputDirectory, 'index.html'), 'utf8');
+
+  assert.match(html, /href="\/alenas-modas\/css\/styles\.css"/);
+  assert.match(html, /src="\/alenas-modas\/js\/main\.js"/);
+  assert.match(html, /data-base-path="\/alenas-modas"/);
+  assert.match(html, /COMBO PARA FLORESCER/);
+  assert.match(html, /3 sutiãs por <strong>R\$ 99,90<\/strong>/);
+  assert.match(html, /data-prices="[^"]*7490/);
+  assert.doesNotMatch(html, /<%[\s\S]*?%>/);
+
+  const imagePaths = [...html.matchAll(/<img src="([^"]+)"/g)].map(([, imagePath]) => imagePath);
+  assert.equal(imagePaths.length, 32);
+  assert.ok(imagePaths.every((imagePath) => imagePath.startsWith('/alenas-modas/img/')));
+  assert.ok(imagePaths.every((imagePath) => fs.existsSync(
+    path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)))
+  )));
+  assert.ok(fs.existsSync(path.join(outputDirectory, 'css', 'styles.css')));
+  assert.ok(fs.existsSync(path.join(outputDirectory, 'js', 'main.js')));
+  assert.ok(fs.existsSync(path.join(outputDirectory, '.nojekyll')));
 });

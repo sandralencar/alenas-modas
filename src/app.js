@@ -34,7 +34,8 @@ app.use('/', storeRoutes);
 app.use((req, res) => {
   res.status(404).render('errors/error', {
     pageTitle: 'Página não encontrada',
-    message: 'Não encontramos essa página.'
+    message: 'Não encontramos essa página.',
+    basePath: ''
   });
 });
 app.use((error, req, res, next) => {
@@ -42,7 +43,8 @@ app.use((error, req, res, next) => {
   console.error('Erro na aplicação:', error);
   res.status(500).render('errors/error', {
     pageTitle: 'Algo não saiu como esperado',
-    message: 'Ocorreu um erro interno. Tente novamente em instantes.'
+    message: 'Ocorreu um erro interno. Tente novamente em instantes.',
+    basePath: ''
   });
 });
 

@@ -18,6 +18,7 @@ const addressNumber = document.querySelector('[data-address-number]');
 const addressComplement = document.querySelector('[data-address-complement]');
 const addressNoNumber = document.querySelector('[data-address-no-number]');
 const whatsAppNumber = document.body.dataset.whatsappNumber;
+const basePath = document.body.dataset.basePath || '';
 const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 const pricesByCard = new WeakMap();
 let address = null;
@@ -47,6 +48,10 @@ function updateProductPrice(card) {
 function getPublicImageUrl(imagePath) {
   const assetPath = imagePath.replace(/^\/+/, '');
   return new URL(assetPath, 'https://raw.githubusercontent.com/sandralencar/alenas-modas/main/src/public/').href;
+}
+
+function getLocalImageUrl(imagePath) {
+  return `${basePath}${imagePath}`;
 }
 
 function createPromoBundles() {
@@ -319,7 +324,7 @@ document.querySelectorAll('[data-product-id]').forEach((card) => {
       cart.set(key, {
         id,
         name: card.dataset.productName,
-        image: card.dataset.productImage,
+        image: getLocalImageUrl(card.dataset.productImage),
         shareImage: getPublicImageUrl(card.dataset.productImage),
         type: card.dataset.productType,
         size,

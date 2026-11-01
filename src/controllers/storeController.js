@@ -36,7 +36,7 @@ function getProducts() {
   });
 }
 
-function home(req, res) {
+function getHomeData() {
   const configuredNumber = process.env.WHATSAPP_SELLER_NUMBER || '5588988573785';
   const whatsAppNumber = /^\d{10,15}$/.test(configuredNumber) ? configuredNumber : '';
   const products = getProducts();
@@ -44,7 +44,7 @@ function home(req, res) {
     .filter((product) => product.type === type)
     .slice(0, limit);
 
-  res.render('store/home', {
+  return {
     pageTitle: 'Coleção de Primavera',
     products,
     promoImages: {
@@ -54,7 +54,11 @@ function home(req, res) {
     },
     sizes: Object.fromEntries(Object.entries(pricesByType).map(([type, prices]) => [type, Object.keys(prices)])),
     whatsAppNumber
-  });
+  };
 }
 
-module.exports = { home };
+function home(req, res) {
+  res.render('store/home', { ...getHomeData(), basePath: '' });
+}
+
+module.exports = { getHomeData, home };

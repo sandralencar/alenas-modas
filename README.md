@@ -1,12 +1,12 @@
 # Alenas Lingerie
 
-Vitrine online da coleção de primavera da Alenas Lingerie, marca com mais de 25 anos de mercado. O projeto foi pensado para valorizar o trabalho artesanal, o cuidado nos acabamentos e as texturas das peças, com uma experiência de compra simples e responsiva.
+Vitrine online da coleção de primavera da Alenas Lingerie, marca com mais de 25 anos de mercado. O projeto foi pensado para valorizar o trabalho artesanal, o cuidado nos acabamentos e as texturas das peças, com uma experiência de compra simples e responsiva. O site pode ser publicado como arquivos estáticos no GitHub Pages; o pedido continua sendo concluído pelo WhatsApp.
 
 ## Tecnologias
 
 - Node.js 20+
 - Express 4
-- EJS
+- EJS para renderizar a página durante o build
 - HTML, CSS e JavaScript
 
 ## Executar localmente
@@ -17,6 +17,16 @@ Vitrine online da coleção de primavera da Alenas Lingerie, marca com mais de 2
 4. Execute `npm install`.
 5. Inicie com `npm run dev` ou `npm start`.
 6. Abra `http://localhost:3000`.
+
+## Publicar no GitHub Pages
+
+O Express continua disponível para desenvolvimento local, mas o GitHub Pages não executa servidores Node.js. O workflow em `.github/workflows/pages.yml` gera a página EJS e publica o resultado estático da pasta `dist/` a cada push para `main`; o catálogo, as imagens e as regras de compra são preservados.
+
+1. No GitHub, abra **Settings → Pages** e selecione **GitHub Actions** como origem da publicação.
+2. Envie as alterações para a branch `main`. O workflow instala as dependências, executa as verificações e os testes, gera o site e publica o Pages.
+3. Após o primeiro deploy bem-sucedido, acesse `https://sandralencar.github.io/alenas-modas/`.
+
+Para gerar os arquivos localmente, execute `npm run build`. O resultado fica em `dist/`, configurado por padrão para o caminho do projeto no GitHub Pages. Para outro domínio ou subcaminho, defina `BASE_PATH` antes do build (por exemplo, `/` para domínio próprio).
 
 ## Catálogo de imagens
 
