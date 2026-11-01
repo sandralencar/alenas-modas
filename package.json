@@ -1,0 +1,22 @@
+{
+  "name": "alenas-lingerie",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Base da loja virtual Alenas Lingerie",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "check": "node --check src/server.js && node --check src/app.js && node --check src/controllers/storeController.js && node --check src/routes/storeRoutes.js && node --check src/public/js/main.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0"
+  }
+}
