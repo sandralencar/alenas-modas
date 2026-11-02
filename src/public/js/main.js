@@ -9,6 +9,10 @@ const cartStatus = document.querySelector('[data-cart-status]');
 const liveStatus = document.querySelector('[data-live-status]');
 const cartTotal = document.querySelector('[data-cart-total]');
 const cartSavings = document.querySelector('[data-cart-savings]');
+const imageViewer = document.querySelector('[data-image-viewer]');
+const imageViewerImage = imageViewer.querySelector('[data-image-viewer-image]');
+const imageViewerTitle = imageViewer.querySelector('[data-image-viewer-title]');
+const imageViewerCategory = imageViewer.querySelector('[data-image-viewer-category]');
 const paymentMethod = document.querySelector('[data-payment-method]');
 const cepInput = document.querySelector('[data-cep]');
 const cepStatus = document.querySelector('[data-cep-status]');
@@ -94,6 +98,35 @@ function closeCart() {
   cartDialog.addEventListener('animationend', finishClose);
   cartDialog.classList.add('is-closing');
   cartCloseTimer = window.setTimeout(() => finishClose(), 240);
+}
+
+function openImageViewer(button) {
+  const image = button.querySelector('img');
+  imageViewerImage.src = image.currentSrc || image.src;
+  imageViewerImage.alt = button.dataset.imageTitle || image.alt;
+  imageViewerTitle.textContent = button.dataset.imageTitle || image.alt;
+  imageViewerCategory.textContent = button.dataset.imageCategory || '';
+
+  if (typeof imageViewer.showModal === 'function') {
+    imageViewer.showModal();
+    return;
+  }
+
+  imageViewer.setAttribute('open', '');
+  document.body.classList.add('image-viewer-fallback-open');
+}
+
+function closeImageViewer() {
+  if (!imageViewer.hasAttribute('open')) return;
+
+  if (typeof imageViewer.close === 'function') {
+    imageViewer.close();
+    return;
+  }
+
+  imageViewer.removeAttribute('open');
+  document.body.classList.remove('image-viewer-fallback-open');
+  imageViewerImage.removeAttribute('src');
 }
 
 function createPromoBundles() {
@@ -337,6 +370,18 @@ document.querySelectorAll('[data-open-cart]').forEach((button) => {
 
 document.querySelector('[data-close-cart]').addEventListener('click', closeCart);
 
+document.querySelectorAll('[data-image-viewer-trigger]').forEach((button) => {
+  button.addEventListener('click', () => openImageViewer(button));
+});
+
+imageViewer.querySelector('[data-close-image-viewer]').addEventListener('click', closeImageViewer);
+imageViewer.addEventListener('click', (event) => {
+  if (event.target === imageViewer) closeImageViewer();
+});
+imageViewer.addEventListener('close', () => {
+  if (!imageViewer.open) imageViewerImage.removeAttribute('src');
+});
+
 cepRetry.addEventListener('click', lookupAddress);
 
 paymentMethod.addEventListener('change', updateCart);
@@ -359,6 +404,10 @@ document.addEventListener('click', (event) => {
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && document.body.classList.contains('cart-dialog-fallback-open')) {
     closeCart();
+  }
+
+  if (event.key === 'Escape' && document.body.classList.contains('image-viewer-fallback-open')) {
+    closeImageViewer();
   }
 });
 

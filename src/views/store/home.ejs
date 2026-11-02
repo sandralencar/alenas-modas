@@ -74,12 +74,14 @@
       <article class="spring-promo spring-promo--highlight">
         <div class="spring-promo__images" aria-label="Modelos de sutiã disponíveis para o combo">
           <% promoImages.combo.forEach((product) => { %>
-            <picture>
-              <% if (product.displayImage && product.fallbackImage) { %>
-                <source srcset="<%= basePath %><%= product.displayImage %>" type="image/webp">
-              <% } %>
-              <img src="<%= basePath %><%= product.fallbackImage || product.image %>" alt="<%= product.name %>" width="<%= product.imageWidth || '' %>" height="<%= product.imageHeight || '' %>" loading="lazy" decoding="async">
-            </picture>
+            <button class="spring-promo__image-button" type="button" data-image-viewer-trigger data-image-title="<%= product.name %>" data-image-category="<%= product.category %>" aria-label="Ampliar foto de <%= product.name %>">
+              <picture>
+                <% if (product.displayImage && product.fallbackImage) { %>
+                  <source srcset="<%= basePath %><%= product.displayImage %>" type="image/webp">
+                <% } %>
+                <img src="<%= basePath %><%= product.fallbackImage || product.image %>" alt="<%= product.name %>" width="<%= product.imageWidth || '' %>" height="<%= product.imageHeight || '' %>" loading="lazy" decoding="async">
+              </picture>
+            </button>
           <% }) %>
         </div>
         <div class="spring-promo__copy">
@@ -92,12 +94,14 @@
       <article class="spring-promo">
         <div class="spring-promo__images spring-promo__images--pair" aria-label="Modelos que compõem a dupla de sutiãs">
           <% promoImages.dupla.forEach((product) => { %>
-            <picture>
-              <% if (product.displayImage && product.fallbackImage) { %>
-                <source srcset="<%= basePath %><%= product.displayImage %>" type="image/webp">
-              <% } %>
-              <img src="<%= basePath %><%= product.fallbackImage || product.image %>" alt="<%= product.name %>" width="<%= product.imageWidth || '' %>" height="<%= product.imageHeight || '' %>" loading="lazy" decoding="async">
-            </picture>
+            <button class="spring-promo__image-button" type="button" data-image-viewer-trigger data-image-title="<%= product.name %>" data-image-category="<%= product.category %>" aria-label="Ampliar foto de <%= product.name %>">
+              <picture>
+                <% if (product.displayImage && product.fallbackImage) { %>
+                  <source srcset="<%= basePath %><%= product.displayImage %>" type="image/webp">
+                <% } %>
+                <img src="<%= basePath %><%= product.fallbackImage || product.image %>" alt="<%= product.name %>" width="<%= product.imageWidth || '' %>" height="<%= product.imageHeight || '' %>" loading="lazy" decoding="async">
+              </picture>
+            </button>
           <% }) %>
         </div>
         <div class="spring-promo__copy">
@@ -110,12 +114,14 @@
       <article class="spring-promo">
         <div class="spring-promo__images spring-promo__images--shipping" aria-label="Peça da coleção de primavera">
           <% promoImages.frete.forEach((product) => { %>
-            <picture>
-              <% if (product.displayImage && product.fallbackImage) { %>
-                <source srcset="<%= basePath %><%= product.displayImage %>" type="image/webp">
-              <% } %>
-              <img src="<%= basePath %><%= product.fallbackImage || product.image %>" alt="<%= product.name %>" width="<%= product.imageWidth || '' %>" height="<%= product.imageHeight || '' %>" loading="lazy" decoding="async">
-            </picture>
+            <button class="spring-promo__image-button" type="button" data-image-viewer-trigger data-image-title="<%= product.name %>" data-image-category="<%= product.category %>" aria-label="Ampliar foto de <%= product.name %>">
+              <picture>
+                <% if (product.displayImage && product.fallbackImage) { %>
+                  <source srcset="<%= basePath %><%= product.displayImage %>" type="image/webp">
+                <% } %>
+                <img src="<%= basePath %><%= product.fallbackImage || product.image %>" alt="<%= product.name %>" width="<%= product.imageWidth || '' %>" height="<%= product.imageHeight || '' %>" loading="lazy" decoding="async">
+              </picture>
+            </button>
           <% }) %>
         </div>
         <div class="spring-promo__copy">
@@ -140,12 +146,19 @@
         <% products.forEach((product) => { %>
           <article class="product-card" data-product-id="<%= product.id %>" data-product-name="<%= product.name %>" data-product-type="<%= product.type %>" data-product-image="<%= product.image %>" data-product-display-image="<%= product.displayImage ? basePath + product.displayImage : '' %>" data-product-fallback-image="<%= product.fallbackImage ? basePath + product.fallbackImage : '' %>" data-prices="<%= JSON.stringify(product.prices) %>">
             <div class="product-card__image">
-              <picture>
-                <% if (product.displayImage && product.fallbackImage) { %>
-                  <source srcset="<%= basePath %><%= product.displayImage %>" type="image/webp">
-                <% } %>
-                <img src="<%= basePath %><%= product.fallbackImage || product.image %>" alt="<%= product.name %>" width="<%= product.imageWidth || '' %>" height="<%= product.imageHeight || '' %>" loading="lazy" decoding="async">
-              </picture>
+              <button class="product-card__image-button" type="button" data-image-viewer-trigger data-image-title="<%= product.name %>" data-image-category="<%= product.category %>" aria-label="Ampliar foto de <%= product.name %>">
+                <picture>
+                  <% if (product.displayImage && product.fallbackImage) { %>
+                    <source srcset="<%= basePath %><%= product.displayImage %>" type="image/webp">
+                  <% } %>
+                  <img src="<%= basePath %><%= product.fallbackImage || product.image %>" alt="<%= product.name %>" width="<%= product.imageWidth || '' %>" height="<%= product.imageHeight || '' %>" loading="lazy" decoding="async">
+                </picture>
+                <span class="product-card__zoom" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="10.8" cy="10.8" r="6.3"></circle><path d="m16 16 4.2 4.2M10.8 8v5.6M8 10.8h5.6"></path>
+                  </svg>
+                </span>
+              </button>
               <span class="product-card__category"><%= product.category %></span>
             </div>
             <div class="product-card__details">
@@ -282,6 +295,19 @@
       <button class="button button--dark cart-checkout" type="button" data-checkout disabled>Concluir pedido no WhatsApp <span aria-hidden="true">↗</span></button>
     <% } %>
     <p class="cart-status" data-cart-status role="status" aria-live="polite"></p>
+  </dialog>
+
+  <dialog class="image-viewer" data-image-viewer aria-labelledby="image-viewer-title">
+    <div class="image-viewer__content">
+      <button class="image-viewer__close" type="button" data-close-image-viewer aria-label="Fechar imagem ampliada">×</button>
+      <figure class="image-viewer__figure">
+        <img class="image-viewer__image" data-image-viewer-image alt="">
+        <figcaption class="image-viewer__caption">
+          <strong id="image-viewer-title" data-image-viewer-title></strong>
+          <span data-image-viewer-category></span>
+        </figcaption>
+      </figure>
+    </div>
   </dialog>
 
   <p class="cart-toast" data-live-status role="status" aria-live="polite" aria-hidden="true"></p>

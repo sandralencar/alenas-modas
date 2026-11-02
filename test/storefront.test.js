@@ -70,7 +70,11 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
   assert.match(html, /uma história feita à mão, com cuidado em cada costura/i);
   assert.match(html, /texturas de alta qualidade/i);
   assert.match(html, /spring-promo__images/);
+  assert.equal((html.match(/<article class="spring-promo/g) || []).length, 3);
   assert.match(html, /data-product-image=/);
+  assert.equal((html.match(/data-image-viewer-trigger/g) || []).length, 31);
+  assert.match(html, /<dialog class="image-viewer" data-image-viewer/);
+  assert.match(html, /data-close-image-viewer/);
   assert.match(html, /data-promo-summary/);
   assert.match(html, /data-cep/);
   assert.match(html, /data-cep-retry/);
@@ -178,6 +182,11 @@ test('build estático preserva catálogo, regras e caminhos para GitHub Pages', 
   assert.match(styles, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(styles, /grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(styles, /@media \(max-width: 1024px\) \{\s*\.product-grid \{\s*grid-template-columns: minmax\(0, 1fr\);/);
+  assert.match(styles, /@media \(min-width: 651px\) and \(max-width: 1024px\) \{\s*\.product-card \{\s*flex-direction: row;/);
+  assert.match(styles, /\.image-viewer__image \{[\s\S]*?object-fit: contain;/);
+  assert.match(styles, /\.spring-promo__images \{[\s\S]*?height: 104px;/);
+  assert.match(styles, /\.product-card__image \{[\s\S]*?aspect-ratio: 1\.6;/);
   assert.ok(fs.existsSync(path.join(outputDirectory, 'css', 'styles.css')));
   assert.ok(fs.existsSync(path.join(outputDirectory, 'js', 'main.js')));
   assert.ok(fs.existsSync(path.join(outputDirectory, '.nojekyll')));
