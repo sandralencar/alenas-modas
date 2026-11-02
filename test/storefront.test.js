@@ -117,9 +117,17 @@ test('build estático preserva catálogo, regras e caminhos para GitHub Pages', 
   const imagePaths = [...html.matchAll(/<img src="([^"]+)"/g)].map(([, imagePath]) => imagePath);
   assert.equal(imagePaths.length, 32);
   assert.ok(imagePaths.every((imagePath) => imagePath.startsWith('/alenas-modas/img/')));
+  assert.ok(imagePaths.every((imagePath) => imagePath.endsWith('.optimized.webp')));
   assert.ok(imagePaths.every((imagePath) => fs.existsSync(
     path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)))
   )));
+  const optimizedImageBytes = [...new Set(imagePaths)].reduce((sum, imagePath) => {
+    const imagePathOnDisk = path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)));
+    const imageBytes = fs.statSync(imagePathOnDisk).size;
+    assert.ok(imageBytes < 500_000, `${imagePath} should be optimized for mobile`);
+    return sum + imageBytes;
+  }, 0);
+  assert.ok(optimizedImageBytes < 10_000_000, 'the full optimized catalog should remain lightweight');
   assert.ok(fs.existsSync(path.join(outputDirectory, 'css', 'styles.css')));
   assert.ok(fs.existsSync(path.join(outputDirectory, 'js', 'main.js')));
   assert.ok(fs.existsSync(path.join(outputDirectory, '.nojekyll')));

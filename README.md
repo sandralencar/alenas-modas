@@ -20,13 +20,13 @@ Vitrine online da coleção de primavera da Alenas Lingerie, marca com mais de 2
 
 ## Publicar no GitHub Pages
 
-O Express continua disponível para desenvolvimento local, mas o GitHub Pages não executa servidores Node.js. O workflow em `.github/workflows/pages.yml` gera a página EJS e publica o resultado estático da pasta `dist/` a cada push para `main`; o catálogo, as imagens e as regras de compra são preservados.
+O Express continua disponível para desenvolvimento local, mas o GitHub Pages não executa servidores Node.js. O workflow em `.github/workflows/pages.yml` gera a página EJS, converte as imagens do catálogo para WebP otimizado e publica o resultado estático da pasta `dist/` a cada push para `main`; o catálogo, as imagens e as regras de compra são preservados.
 
 1. No GitHub, abra **Settings → Pages** e selecione **GitHub Actions** como origem da publicação.
 2. Envie as alterações para a branch `main`. O workflow instala as dependências, executa as verificações e os testes, gera o site e publica o Pages.
 3. Após o primeiro deploy bem-sucedido, acesse `https://sandralencar.github.io/alenas-modas/`.
 
-Para gerar os arquivos localmente, execute `npm run build`. O resultado fica em `dist/`, configurado por padrão para o caminho do projeto no GitHub Pages. Para outro domínio ou subcaminho, defina `BASE_PATH` antes do build (por exemplo, `/` para domínio próprio).
+Para gerar os arquivos localmente, execute `npm run build`. As imagens originais continuam no catálogo e nos links enviados pelo WhatsApp; somente as cópias do site são otimizadas. O resultado fica em `dist/`, configurado por padrão para o caminho do projeto no GitHub Pages. Para outro domínio ou subcaminho, defina `BASE_PATH` antes do build (por exemplo, `/` para domínio próprio).
 
 ## Catálogo de imagens
 

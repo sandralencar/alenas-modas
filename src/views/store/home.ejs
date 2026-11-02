@@ -44,7 +44,7 @@
       </div>
       <% if (products.length) { %>
         <figure class="hero__image">
-          <img src="<%= basePath %><%= products[0].image %>" alt="<%= products[0].name %>" fetchpriority="high">
+          <img src="<%= basePath %><%= products[0].displayImage || products[0].image %>" alt="<%= products[0].name %>" fetchpriority="high">
           <figcaption>Um detalhe especial, escolhido por você.</figcaption>
         </figure>
       <% } %>
@@ -54,7 +54,7 @@
       <article class="spring-promo spring-promo--highlight">
         <div class="spring-promo__images" aria-label="Modelos de sutiã disponíveis para o combo">
           <% promoImages.combo.forEach((product) => { %>
-            <img src="<%= basePath %><%= product.image %>" alt="<%= product.name %>" loading="lazy">
+            <img src="<%= basePath %><%= product.displayImage || product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async">
           <% }) %>
         </div>
         <div class="spring-promo__copy">
@@ -67,7 +67,7 @@
       <article class="spring-promo">
         <div class="spring-promo__images spring-promo__images--pair" aria-label="Modelos que compõem a dupla de sutiãs">
           <% promoImages.dupla.forEach((product) => { %>
-            <img src="<%= basePath %><%= product.image %>" alt="<%= product.name %>" loading="lazy">
+            <img src="<%= basePath %><%= product.displayImage || product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async">
           <% }) %>
         </div>
         <div class="spring-promo__copy">
@@ -80,7 +80,7 @@
       <article class="spring-promo">
         <div class="spring-promo__images spring-promo__images--shipping" aria-label="Peça da coleção de primavera">
           <% promoImages.frete.forEach((product) => { %>
-            <img src="<%= basePath %><%= product.image %>" alt="<%= product.name %>" loading="lazy">
+            <img src="<%= basePath %><%= product.displayImage || product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async">
           <% }) %>
         </div>
         <div class="spring-promo__copy">
@@ -103,9 +103,9 @@
 
       <div class="product-grid">
         <% products.forEach((product) => { %>
-          <article class="product-card" data-product-id="<%= product.id %>" data-product-name="<%= product.name %>" data-product-type="<%= product.type %>" data-product-image="<%= product.image %>" data-prices="<%= JSON.stringify(product.prices) %>">
+          <article class="product-card" data-product-id="<%= product.id %>" data-product-name="<%= product.name %>" data-product-type="<%= product.type %>" data-product-image="<%= product.image %>" data-product-display-image="<%= basePath %><%= product.displayImage || product.image %>" data-prices="<%= JSON.stringify(product.prices) %>">
             <div class="product-card__image">
-              <img src="<%= basePath %><%= product.image %>" alt="<%= product.name %>" loading="lazy">
+              <img src="<%= basePath %><%= product.displayImage || product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async">
               <span class="product-card__category"><%= product.category %></span>
             </div>
             <div class="product-card__details">

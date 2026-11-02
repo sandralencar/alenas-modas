@@ -324,7 +324,7 @@ document.querySelectorAll('[data-product-id]').forEach((card) => {
       cart.set(key, {
         id,
         name: card.dataset.productName,
-        image: getLocalImageUrl(card.dataset.productImage),
+        image: card.dataset.productDisplayImage || getLocalImageUrl(card.dataset.productImage),
         shareImage: getPublicImageUrl(card.dataset.productImage),
         type: card.dataset.productType,
         size,
