@@ -4,6 +4,17 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { after, before, test } = require('node:test');
 
+function assertUniqueProductCards(html) {
+  const cards = [...html.matchAll(/<article class="product-card"[^>]*data-product-id="([^"]+)"[^>]*data-product-image="([^"]+)"[^>]*>([\s\S]*?)<\/article>/g)];
+  const productIds = cards.map(([, productId]) => productId);
+  const productImages = cards.map(([, , imagePath]) => imagePath);
+
+  assert.equal(cards.length, 25);
+  assert.equal(new Set(productIds).size, cards.length, 'each product should appear once in the catalog');
+  assert.equal(new Set(productImages).size, cards.length, 'each product should map to a distinct image');
+  assert.ok(cards.every(([, , , markup]) => (markup.match(/<img\b/g) || []).length === 1), 'each product card should show one image');
+}
+
 const originalWhatsAppNumber = process.env.WHATSAPP_SELLER_NUMBER;
 process.env.WHATSAPP_SELLER_NUMBER = '5588988573785';
 
@@ -33,6 +44,7 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
   const html = await response.text();
 
   assert.equal(response.status, 200);
+  assertUniqueProductCards(html);
   assert.match(html, /Mais de 25 anos entregando <em>qualidade\.<\/em>/);
   assert.match(html, /http-equiv="Content-Security-Policy"/);
   assert.match(html, /connect-src 'self' https:\/\/viacep\.com\.br/);
@@ -109,6 +121,7 @@ test('build estático preserva catálogo, regras e caminhos para GitHub Pages', 
   const outputDirectory = path.join(projectRoot, 'dist');
   const html = fs.readFileSync(path.join(outputDirectory, 'index.html'), 'utf8');
 
+  assertUniqueProductCards(html);
   assert.match(html, /href="\/alenas-modas\/css\/styles\.css"/);
   assert.match(html, /src="\/alenas-modas\/js\/main\.js"/);
   assert.match(html, /data-base-path="\/alenas-modas"/);
@@ -148,7 +161,7 @@ test('build estático preserva catálogo, regras e caminhos para GitHub Pages', 
   assert.ok(jpegImageBytes + webpImageBytes < 15_000_000, 'the generated image catalog should remain lightweight');
   const styles = fs.readFileSync(path.join(outputDirectory, 'css', 'styles.css'), 'utf8');
   assert.match(styles, /@supports not \(aspect-ratio: 1 \/ 1\)/);
-  assert.match(styles, /\.has-motion \.product-card,[\s\S]*?opacity: 1/);
+  assert.match(styles, /\.has-motion \.reveal-on-view\.is-visible \{\s*transform: translateY\(0\);\s*opacity: 1;/);
   assert.ok(fs.existsSync(path.join(outputDirectory, 'css', 'styles.css')));
   assert.ok(fs.existsSync(path.join(outputDirectory, 'js', 'main.js')));
   assert.ok(fs.existsSync(path.join(outputDirectory, '.nojekyll')));
