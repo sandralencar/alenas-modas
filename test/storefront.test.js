@@ -34,6 +34,8 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
 
   assert.equal(response.status, 200);
   assert.match(html, /Mais de 25 anos entregando <em>qualidade\.<\/em>/);
+  assert.match(html, /http-equiv="Content-Security-Policy"/);
+  assert.match(html, /connect-src 'self' https:\/\/viacep\.com\.br/);
   assert.match(html, /Concluir pedido no WhatsApp/);
   assert.match(html, /data-whatsapp-number="5588988573785"/);
   assert.match(html, /data-add-to-cart/);
@@ -68,6 +70,7 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
 
   const imagePaths = [...html.matchAll(/<img src="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(imagePaths.length, 32);
+  assert.match(html, /loading="lazy" decoding="async"/);
 
   const imageResponses = await Promise.all(imagePaths.map((imagePath) => fetch(new URL(imagePath, baseUrl))));
   assert.ok(imageResponses.every((imageResponse) => imageResponse.status === 200));
@@ -109,6 +112,7 @@ test('build estático preserva catálogo, regras e caminhos para GitHub Pages', 
   assert.match(html, /href="\/alenas-modas\/css\/styles\.css"/);
   assert.match(html, /src="\/alenas-modas\/js\/main\.js"/);
   assert.match(html, /data-base-path="\/alenas-modas"/);
+  assert.match(html, /http-equiv="Content-Security-Policy"/);
   assert.match(html, /COMBO PARA FLORESCER/);
   assert.match(html, /3 sutiãs por <strong>R\$ 99,90<\/strong>/);
   assert.match(html, /data-prices="[^"]*7490/);
@@ -117,17 +121,34 @@ test('build estático preserva catálogo, regras e caminhos para GitHub Pages', 
   const imagePaths = [...html.matchAll(/<img src="([^"]+)"/g)].map(([, imagePath]) => imagePath);
   assert.equal(imagePaths.length, 32);
   assert.ok(imagePaths.every((imagePath) => imagePath.startsWith('/alenas-modas/img/')));
-  assert.ok(imagePaths.every((imagePath) => imagePath.endsWith('.optimized.webp')));
+  assert.ok(imagePaths.every((imagePath) => imagePath.endsWith('.optimized.jpg')));
   assert.ok(imagePaths.every((imagePath) => fs.existsSync(
     path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)))
   )));
-  const optimizedImageBytes = [...new Set(imagePaths)].reduce((sum, imagePath) => {
+  const webpPaths = [...html.matchAll(/<source srcset="([^"]+)" type="image\/webp">/g)]
+    .map(([, imagePath]) => imagePath);
+  assert.equal(webpPaths.length, imagePaths.length);
+  assert.ok(webpPaths.every((imagePath) => imagePath.endsWith('.optimized.webp')));
+  assert.ok(webpPaths.every((imagePath) => fs.existsSync(
+    path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)))
+  )));
+
+  const jpegImageBytes = [...new Set(imagePaths)].reduce((sum, imagePath) => {
     const imagePathOnDisk = path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)));
     const imageBytes = fs.statSync(imagePathOnDisk).size;
-    assert.ok(imageBytes < 500_000, `${imagePath} should be optimized for mobile`);
+    assert.ok(imageBytes < 500_000, `${imagePath} JPEG fallback should be optimized for older mobile browsers`);
     return sum + imageBytes;
   }, 0);
-  assert.ok(optimizedImageBytes < 10_000_000, 'the full optimized catalog should remain lightweight');
+  const webpImageBytes = [...new Set(webpPaths)].reduce((sum, imagePath) => {
+    const imagePathOnDisk = path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)));
+    const imageBytes = fs.statSync(imagePathOnDisk).size;
+    assert.ok(imageBytes < 500_000, `${imagePath} WebP should be optimized for mobile`);
+    return sum + imageBytes;
+  }, 0);
+  assert.ok(jpegImageBytes + webpImageBytes < 15_000_000, 'the generated image catalog should remain lightweight');
+  const styles = fs.readFileSync(path.join(outputDirectory, 'css', 'styles.css'), 'utf8');
+  assert.match(styles, /@supports not \(aspect-ratio: 1 \/ 1\)/);
+  assert.match(styles, /\.has-motion \.product-card,[\s\S]*?opacity: 1/);
   assert.ok(fs.existsSync(path.join(outputDirectory, 'css', 'styles.css')));
   assert.ok(fs.existsSync(path.join(outputDirectory, 'js', 'main.js')));
   assert.ok(fs.existsSync(path.join(outputDirectory, '.nojekyll')));

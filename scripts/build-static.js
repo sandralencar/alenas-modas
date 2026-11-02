@@ -23,17 +23,35 @@ async function build() {
   const homeData = getHomeData();
   const optimizedImages = new Map();
   for (const product of homeData.products) {
-    let displayImage = optimizedImages.get(product.image);
-    if (!displayImage) {
-      displayImage = product.image.replace(/\.[^.]+$/, '.optimized.webp');
+    let displayImages = optimizedImages.get(product.image);
+    if (!displayImages) {
+      displayImages = {
+        webp: product.image.replace(/\.[^.]+$/, '.optimized.webp'),
+        fallback: product.image.replace(/\.[^.]+$/, '.optimized.jpg')
+      };
       const sourceImage = path.join(sourceImageDirectory, decodeURIComponent(product.image.slice('/img/'.length)));
-      const outputImage = path.join(outputDirectory, decodeURIComponent(displayImage.slice(1)));
-      await fs.promises.mkdir(path.dirname(outputImage), { recursive: true });
-      await sharp(sourceImage).rotate().webp({ quality: 82, effort: 5 }).toFile(outputImage);
-      optimizedImages.set(product.image, displayImage);
+      const webpImage = path.join(outputDirectory, decodeURIComponent(displayImages.webp.slice(1)));
+      const fallbackImage = path.join(outputDirectory, decodeURIComponent(displayImages.fallback.slice(1)));
+      await fs.promises.mkdir(path.dirname(webpImage), { recursive: true });
+      await sharp(sourceImage)
+        .rotate()
+        .resize({ width: 1400, height: 1400, fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 82, effort: 5 })
+        .toFile(webpImage);
+      await sharp(sourceImage)
+        .rotate()
+        .resize({ width: 1400, height: 1400, fit: 'inside', withoutEnlargement: true })
+        .flatten({ background: '#fbf8f4' })
+        .jpeg({ quality: 80, mozjpeg: true, progressive: false })
+        .toFile(fallbackImage);
+      optimizedImages.set(product.image, displayImages);
     }
 
-    product.displayImage = displayImage;
+    product.displayImage = displayImages.webp;
+    product.fallbackImage = displayImages.fallback;
+    const metadata = await sharp(path.join(outputDirectory, decodeURIComponent(displayImages.webp.slice(1)))).metadata();
+    product.imageWidth = metadata.width;
+    product.imageHeight = metadata.height;
   }
 
   const html = await ejs.renderFile(templatePath, {
@@ -50,12 +68,14 @@ async function build() {
     const sourceImage = path.join(sourceImageDirectory, decodeURIComponent(product.image.slice('/img/'.length)));
     return sum + fs.statSync(sourceImage).size;
   }, 0);
-  const optimizedBytes = [...optimizedImages.values()].reduce((sum, imagePath) => {
-    const outputImage = path.join(outputDirectory, decodeURIComponent(imagePath.slice(1)));
-    return sum + fs.statSync(outputImage).size;
+  const webpBytes = [...optimizedImages.values()].reduce((sum, images) => {
+    return sum + fs.statSync(path.join(outputDirectory, decodeURIComponent(images.webp.slice(1)))).size;
   }, 0);
-  const reduction = Math.round((1 - optimizedBytes / originalBytes) * 100);
-  console.log(`Static storefront generated at ${outputDirectory} with base path ${basePath || '/'}; images reduced by ${reduction}%.`);
+  const fallbackBytes = [...optimizedImages.values()].reduce((sum, images) => {
+    return sum + fs.statSync(path.join(outputDirectory, decodeURIComponent(images.fallback.slice(1)))).size;
+  }, 0);
+  const reduction = Math.round((1 - webpBytes / originalBytes) * 100);
+  console.log(`Static storefront generated at ${outputDirectory} with base path ${basePath || '/'}; WebP images reduced by ${reduction}%, JPEG fallbacks total ${Math.ceil(fallbackBytes / 1_000_000)} MB.`);
 }
 
 build().catch((error) => {

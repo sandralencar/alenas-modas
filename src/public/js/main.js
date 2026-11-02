@@ -54,6 +54,26 @@ function getLocalImageUrl(imagePath) {
   return `${basePath}${imagePath}`;
 }
 
+function openCart() {
+  if (typeof cartDialog.showModal === 'function') {
+    cartDialog.showModal();
+    return;
+  }
+
+  cartDialog.setAttribute('open', '');
+  document.body.classList.add('cart-dialog-fallback-open');
+}
+
+function closeCart() {
+  if (typeof cartDialog.close === 'function' && cartDialog.open) {
+    cartDialog.close();
+    return;
+  }
+
+  cartDialog.removeAttribute('open');
+  document.body.classList.remove('cart-dialog-fallback-open');
+}
+
 function createPromoBundles() {
   const models = new Map();
 
@@ -158,7 +178,16 @@ function updateCart() {
     image.src = item.image;
     image.alt = '';
     image.loading = 'lazy';
-    imageLink.append(image);
+    image.decoding = 'async';
+    const picture = document.createElement('picture');
+    if (item.webpImage && item.webpImage !== item.image) {
+      const source = document.createElement('source');
+      source.type = 'image/webp';
+      source.srcset = item.webpImage;
+      picture.append(source);
+    }
+    picture.append(image);
+    imageLink.append(picture);
 
     const details = document.createElement('div');
     details.className = 'cart-item__details';
@@ -281,17 +310,29 @@ async function lookupAddress() {
 }
 
 document.querySelectorAll('[data-open-cart]').forEach((button) => {
-  button.addEventListener('click', () => cartDialog.showModal());
+  button.addEventListener('click', openCart);
 });
 
-document.querySelector('[data-close-cart]').addEventListener('click', () => cartDialog.close());
+document.querySelector('[data-close-cart]').addEventListener('click', closeCart);
 
 cepRetry.addEventListener('click', lookupAddress);
 
 paymentMethod.addEventListener('change', updateCart);
 
 cartDialog.addEventListener('click', (event) => {
-  if (event.target === cartDialog) cartDialog.close();
+  if (event.target === cartDialog) closeCart();
+});
+
+document.addEventListener('click', (event) => {
+  if (document.body.classList.contains('cart-dialog-fallback-open') && event.target === document.body) {
+    closeCart();
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && document.body.classList.contains('cart-dialog-fallback-open')) {
+    closeCart();
+  }
 });
 
 document.querySelectorAll('[data-product-id]').forEach((card) => {
@@ -324,7 +365,8 @@ document.querySelectorAll('[data-product-id]').forEach((card) => {
       cart.set(key, {
         id,
         name: card.dataset.productName,
-        image: card.dataset.productDisplayImage || getLocalImageUrl(card.dataset.productImage),
+        image: card.dataset.productFallbackImage || getLocalImageUrl(card.dataset.productImage),
+        webpImage: card.dataset.productDisplayImage,
         shareImage: getPublicImageUrl(card.dataset.productImage),
         type: card.dataset.productType,
         size,
