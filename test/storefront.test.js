@@ -60,6 +60,10 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
   assert.match(html, /<option value="Cartão de crédito">Cartão de crédito<\/option>/);
   assert.match(html, /<option value="Cartão de débito">Cartão de débito<\/option>/);
   assert.match(html, /data-cart-total/);
+  assert.match(html, /class="store-announcement__icon"/);
+  assert.match(html, /class="header-whatsapp"[^>]*aria-label="Dúvidas\? Fale com a gente pelo WhatsApp">[\s\S]*?class="whatsapp-icon"/);
+  assert.match(html, /class="craft-note__icon"/);
+  assert.match(html, /class="brand-story__whatsapp"[\s\S]*?class="whatsapp-icon"/);
   assert.match(html, /3 sutiãs por <strong>R\$ 99,90<\/strong>/);
   assert.match(html, /Frete grátis para Itapevi\/SP/);
   assert.match(html, /Mais de 25 anos entregando/);
@@ -108,6 +112,10 @@ test('links de imagens do pedido apontam para os arquivos públicos do repositó
   const storefrontScript = fs.readFileSync(path.join(__dirname, '..', 'src', 'public', 'js', 'main.js'), 'utf8');
   assert.match(storefrontScript, /raw\.githubusercontent\.com\/sandralencar\/alenas-modas\/main\/src\/public/);
   assert.match(storefrontScript, /shareImage/);
+  assert.equal((storefrontScript.match(/document\.body\.classList\.add\('images-enhanced'\)/g) || []).length, 1);
+  assert.match(storefrontScript, /imageContainer\.classList\.add\('is-loading'\)/);
+  assert.match(storefrontScript, /imageContainer\.classList\.toggle\('is-error'/);
+  assert.match(storefrontScript, /cartDialog\.addEventListener\('cancel'/);
 });
 
 test('build estático preserva catálogo, regras e caminhos para GitHub Pages', () => {
@@ -162,6 +170,14 @@ test('build estático preserva catálogo, regras e caminhos para GitHub Pages', 
   const styles = fs.readFileSync(path.join(outputDirectory, 'css', 'styles.css'), 'utf8');
   assert.match(styles, /@supports not \(aspect-ratio: 1 \/ 1\)/);
   assert.match(styles, /\.has-motion \.reveal-on-view\.is-visible \{\s*transform: translateY\(0\);\s*opacity: 1;/);
+  assert.match(styles, /\.product-card__image\.is-loading::after/);
+  assert.match(styles, /@keyframes cart-dialog-enter/);
+  assert.match(styles, /@keyframes cart-dialog-exit/);
+  assert.match(styles, /grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /grid-template-columns: minmax\(0, 1fr\)/);
   assert.ok(fs.existsSync(path.join(outputDirectory, 'css', 'styles.css')));
   assert.ok(fs.existsSync(path.join(outputDirectory, 'js', 'main.js')));
   assert.ok(fs.existsSync(path.join(outputDirectory, '.nojekyll')));

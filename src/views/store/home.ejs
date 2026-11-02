@@ -1,6 +1,15 @@
 <%- include('../partials/head', { pageTitle }) %>
 <body class="storefront" data-whatsapp-number="<%= whatsAppNumber %>" data-base-path="<%= basePath %>">
-  <div class="store-announcement"><span>Coleção de Primavera</span><span>Frete grátis para Itapevi/SP</span><span>Combo de 3 sutiãs por R$ 99,90</span></div>
+  <div class="store-announcement">
+    <span class="store-announcement__item">
+      <svg class="store-announcement__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 20v-7"></path><path d="M12 13c-4.2 0-6.2-2.4-6.2-5.8 3.8 0 6.2 1.8 6.2 5.8Z"></path><path d="M12 16c0-3.8 2.2-6 6.2-6 0 3.6-2 6-6.2 6Z"></path>
+      </svg>
+      Coleção de Primavera
+    </span>
+    <span class="store-announcement__item">Frete grátis para Itapevi/SP</span>
+    <span class="store-announcement__item">Combo de 3 sutiãs por R$ 99,90</span>
+  </div>
 
   <header class="store-header">
     <a class="brand" href="<%= basePath ? basePath + '/' : '/' %>" aria-label="Alenas Lingerie, página inicial">
@@ -14,7 +23,11 @@
     </nav>
     <div class="store-header__actions">
       <a class="header-whatsapp" href="https://wa.me/<%= whatsAppNumber %>?text=<%= encodeURIComponent('Olá! Tenho uma dúvida sobre a coleção de primavera da Alenas Lingerie.') %>" target="_blank" rel="noopener noreferrer" aria-label="Dúvidas? Fale com a gente pelo WhatsApp">
-        <span aria-hidden="true">♡</span><span class="header-whatsapp__label">Dúvidas? Fale com a gente</span>
+        <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z"></path>
+          <path d="M9 8.7c.5 2.2 2.2 3.9 4.4 4.5l1-1 1.8.8-.2 1.5c-.1.6-.7 1-1.3.9-4-.6-7.1-3.8-7.7-7.7-.1-.6.3-1.2.9-1.3l1.5-.2.8 1.8-1.2.7Z"></path>
+        </svg>
+        <span class="header-whatsapp__label">Dúvidas? Fale com a gente</span>
       </a>
       <button class="cart-open" type="button" data-open-cart aria-haspopup="dialog" aria-label="Abrir sacola">
         <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -37,7 +50,9 @@
           <button class="text-button" type="button" data-open-cart>Ver minha sacola</button>
         </div>
         <div class="craft-note">
-          <span class="craft-note__icon" aria-hidden="true">✦</span>
+          <svg class="craft-note__icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m22.5 4.5 5 5L13 24l-5 1 1-5L22.5 4.5Z"></path><path d="m19.5 7.5 5 5"></path><path d="M5 27c4-3 7 3 11 0s7 3 11 0"></path>
+          </svg>
           <span><strong>Feito com cuidado, ponto a ponto.</strong><br>Tradição artesanal há mais de 25 anos.</span>
         </div>
         <p class="hero__note">Frete grátis para Itapevi/SP · atendimento próximo pelo WhatsApp.</p>
@@ -136,7 +151,6 @@
             <div class="product-card__details">
               <h3><%= product.name %></h3>
               <p class="product-price" aria-live="polite">
-                <span>Preço para o tamanho selecionado</span>
                 <strong data-product-price></strong>
                 <span class="product-price__hint">por peça · subtotal calculado na sacola</span>
               </p>
@@ -181,7 +195,13 @@
         <span>Feito com cuidado</span><span>Texturas especiais</span><span>Mais de 25 anos de mercado</span>
       </div>
       <a class="button button--light" href="#catalogo">Escolher minhas peças <span aria-hidden="true">↗</span></a>
-      <a class="brand-story__whatsapp" href="https://wa.me/<%= whatsAppNumber %>?text=<%= encodeURIComponent('Olá! Tenho uma dúvida sobre a coleção de primavera da Alenas Lingerie.') %>" target="_blank" rel="noopener noreferrer">♡ Dúvidas? Fale com a gente pelo WhatsApp</a>
+      <a class="brand-story__whatsapp" href="https://wa.me/<%= whatsAppNumber %>?text=<%= encodeURIComponent('Olá! Tenho uma dúvida sobre a coleção de primavera da Alenas Lingerie.') %>" target="_blank" rel="noopener noreferrer">
+        <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z"></path>
+          <path d="M9 8.7c.5 2.2 2.2 3.9 4.4 4.5l1-1 1.8.8-.2 1.5c-.1.6-.7 1-1.3.9-4-.6-7.1-3.8-7.7-7.7-.1-.6.3-1.2.9-1.3l1.5-.2.8 1.8-1.2.7Z"></path>
+        </svg>
+        Dúvidas? Fale com a gente pelo WhatsApp
+      </a>
     </section>
   </main>
 
@@ -191,7 +211,13 @@
       <span class="brand__caption">LINGERIE</span>
     </a>
     <p>Beleza, leveza e desejo — do seu jeito.</p>
-    <a class="footer-whatsapp" href="https://wa.me/<%= whatsAppNumber %>?text=<%= encodeURIComponent('Olá! Tenho uma dúvida sobre a coleção de primavera da Alenas Lingerie.') %>" target="_blank" rel="noopener noreferrer">Dúvidas? Chame no WhatsApp</a>
+    <a class="footer-whatsapp" href="https://wa.me/<%= whatsAppNumber %>?text=<%= encodeURIComponent('Olá! Tenho uma dúvida sobre a coleção de primavera da Alenas Lingerie.') %>" target="_blank" rel="noopener noreferrer">
+      <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z"></path>
+        <path d="M9 8.7c.5 2.2 2.2 3.9 4.4 4.5l1-1 1.8.8-.2 1.5c-.1.6-.7 1-1.3.9-4-.6-7.1-3.8-7.7-7.7-.1-.6.3-1.2.9-1.3l1.5-.2.8 1.8-1.2.7Z"></path>
+      </svg>
+      Dúvidas? Chame no WhatsApp
+    </a>
     <span>© <%= new Date().getFullYear() %> Alenas Lingerie</span>
   </footer>
 

@@ -26,6 +26,8 @@ let cepErrorMessage = '';
 let lookupRequest = 0;
 let requestedCep = '';
 let isLookingUp = false;
+let isCartClosing = false;
+let cartCloseTimer;
 let toastTimer;
 
 function getPrice(card, size) {
@@ -55,6 +57,10 @@ function getLocalImageUrl(imagePath) {
 }
 
 function openCart() {
+  if (cartDialog.open) return;
+  isCartClosing = false;
+  cartDialog.classList.remove('is-closing');
+
   if (typeof cartDialog.showModal === 'function') {
     cartDialog.showModal();
     return;
@@ -65,13 +71,29 @@ function openCart() {
 }
 
 function closeCart() {
-  if (typeof cartDialog.close === 'function' && cartDialog.open) {
-    cartDialog.close();
-    return;
-  }
+  if (!cartDialog.open || isCartClosing) return;
+  isCartClosing = true;
 
-  cartDialog.removeAttribute('open');
-  document.body.classList.remove('cart-dialog-fallback-open');
+  const finishClose = (event) => {
+    if (event && (event.target !== cartDialog || event.animationName !== 'cart-dialog-exit')) return;
+    if (!isCartClosing) return;
+    cartDialog.removeEventListener('animationend', finishClose);
+    window.clearTimeout(cartCloseTimer);
+    cartDialog.classList.remove('is-closing');
+    isCartClosing = false;
+
+    if (typeof cartDialog.close === 'function' && cartDialog.open) {
+      cartDialog.close();
+      return;
+    }
+
+    cartDialog.removeAttribute('open');
+    document.body.classList.remove('cart-dialog-fallback-open');
+  };
+
+  cartDialog.addEventListener('animationend', finishClose);
+  cartDialog.classList.add('is-closing');
+  cartCloseTimer = window.setTimeout(() => finishClose(), 240);
 }
 
 function createPromoBundles() {
@@ -323,6 +345,11 @@ cartDialog.addEventListener('click', (event) => {
   if (event.target === cartDialog) closeCart();
 });
 
+cartDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeCart();
+});
+
 document.addEventListener('click', (event) => {
   if (document.body.classList.contains('cart-dialog-fallback-open') && event.target === document.body) {
     closeCart();
@@ -490,6 +517,25 @@ checkoutButton.addEventListener('click', () => {
 
 paymentMethod.addEventListener('change', () => {
   cartStatus.textContent = '';
+});
+
+document.body.classList.add('images-enhanced');
+document.querySelectorAll('.product-card__image').forEach((imageContainer) => {
+  const image = imageContainer.querySelector('img');
+  const updateImageState = () => {
+    imageContainer.classList.remove('is-loading');
+    imageContainer.classList.toggle('is-loaded', image.naturalWidth > 0);
+    imageContainer.classList.toggle('is-error', image.naturalWidth === 0);
+  };
+
+  image.addEventListener('load', updateImageState);
+  image.addEventListener('error', updateImageState);
+
+  if (image.complete) {
+    updateImageState();
+  } else {
+    imageContainer.classList.add('is-loading');
+  }
 });
 
 updateCart();
