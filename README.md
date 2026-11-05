@@ -24,9 +24,9 @@ O Express continua disponível para desenvolvimento local, mas o GitHub Pages n�
 
 1. No GitHub, abra **Settings → Pages** e selecione **GitHub Actions** como origem da publicação.
 2. Envie as alterações para a branch `main`. O workflow instala as dependências, executa as verificações e os testes, gera o site e publica o Pages.
-3. Após o primeiro deploy bem-sucedido, acesse `https://sandralencar.github.io/alenas-modas/`.
+3. Após o primeiro deploy bem-sucedido, acesse `https://alenasmoda.com.br`.
 
-Para gerar os arquivos localmente, execute `npm run build`. As imagens originais continuam no catálogo e nos links enviados pelo WhatsApp; somente as cópias do site são otimizadas. As imagens do catálogo usam carregamento adiado, dimensões explícitas e imagens alternativas para compatibilidade; animações de entrada ficam desativadas em telas pequenas para não esconder conteúdo se o navegador não disparar o observador. O site estático também publica uma política CSP por meta tag. O resultado fica em `dist/`, configurado por padrão para o caminho do projeto no GitHub Pages. Para outro domínio ou subcaminho, defina `BASE_PATH` antes do build (por exemplo, `/` para domínio próprio).
+Para gerar os arquivos localmente, execute `npm run build`. As imagens originais continuam no catálogo e nos links enviados pelo WhatsApp; somente as cópias do site são otimizadas. As imagens do catálogo usam carregamento adiado, dimensões explícitas e imagens alternativas para compatibilidade; animações de entrada ficam desativadas em telas pequenas para não esconder conteúdo se o navegador não disparar o observador. O site estático também publica uma política CSP por meta tag. O resultado fica em `dist/` e usa a raiz do domínio por padrão, como em `https://alenasmoda.com.br`. Para publicar em um subcaminho, defina `BASE_PATH` antes do build (por exemplo, `/alenas-modas` para `https://sandralencar.github.io/alenas-modas/`).
 
 ## Catálogo de imagens
 

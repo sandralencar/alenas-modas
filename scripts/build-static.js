@@ -8,11 +8,11 @@ const projectRoot = path.join(__dirname, '..');
 const outputDirectory = path.join(projectRoot, 'dist');
 const publicDirectory = path.join(projectRoot, 'src', 'public');
 const templatePath = path.join(projectRoot, 'src', 'views', 'store', 'home.ejs');
-const configuredBasePath = process.env.BASE_PATH || '/alenas-modas';
-const basePath = configuredBasePath.replace(/\/+$/, '');
+const configuredBasePath = process.env.BASE_PATH || '/';
+const basePath = configuredBasePath === '/' ? '' : configuredBasePath.replace(/\/+$/, '');
 const sourceImageDirectory = path.join(publicDirectory, 'img');
 
-if (!basePath.startsWith('/') || basePath.includes('..') || /[?#]/.test(basePath)) {
+if ((basePath && !basePath.startsWith('/')) || basePath.includes('..') || /[?#]/.test(basePath)) {
   throw new Error('BASE_PATH must be a URL path such as /alenas-modas or /.');
 }
 

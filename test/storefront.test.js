@@ -122,11 +122,11 @@ test('links de imagens do pedido apontam para os arquivos públicos do repositó
   assert.match(storefrontScript, /cartDialog\.addEventListener\('cancel'/);
 });
 
-test('build estático preserva catálogo, regras e caminhos para GitHub Pages', () => {
+test('build estático publica os recursos na raiz do domínio personalizado', () => {
   const projectRoot = path.join(__dirname, '..');
   execFileSync(process.execPath, [path.join(projectRoot, 'scripts', 'build-static.js')], {
     cwd: projectRoot,
-    env: { ...process.env, BASE_PATH: '/alenas-modas' },
+    env: { ...process.env, BASE_PATH: '/' },
     stdio: 'pipe'
   });
 
@@ -134,9 +134,10 @@ test('build estático preserva catálogo, regras e caminhos para GitHub Pages', 
   const html = fs.readFileSync(path.join(outputDirectory, 'index.html'), 'utf8');
 
   assertUniqueProductCards(html);
-  assert.match(html, /href="\/alenas-modas\/css\/styles\.css"/);
-  assert.match(html, /src="\/alenas-modas\/js\/main\.js"/);
-  assert.match(html, /data-base-path="\/alenas-modas"/);
+  assert.match(html, /href="\/css\/styles\.css"/);
+  assert.match(html, /src="\/js\/main\.js"/);
+  assert.match(html, /data-base-path=""/);
+  assert.doesNotMatch(html, /\/alenas-modas\//);
   assert.match(html, /http-equiv="Content-Security-Policy"/);
   assert.match(html, /COMBO PARA FLORESCER/);
   assert.match(html, /3 sutiãs por <strong>R\$ 99,90<\/strong>/);
@@ -145,27 +146,27 @@ test('build estático preserva catálogo, regras e caminhos para GitHub Pages', 
 
   const imagePaths = [...html.matchAll(/<img src="([^"]+)"/g)].map(([, imagePath]) => imagePath);
   assert.equal(imagePaths.length, 32);
-  assert.ok(imagePaths.every((imagePath) => imagePath.startsWith('/alenas-modas/img/')));
+  assert.ok(imagePaths.every((imagePath) => imagePath.startsWith('/img/')));
   assert.ok(imagePaths.every((imagePath) => imagePath.endsWith('.optimized.jpg')));
   assert.ok(imagePaths.every((imagePath) => fs.existsSync(
-    path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)))
+    path.join(outputDirectory, decodeURIComponent(imagePath.slice(1)))
   )));
   const webpPaths = [...html.matchAll(/<source srcset="([^"]+)" type="image\/webp">/g)]
     .map(([, imagePath]) => imagePath);
   assert.equal(webpPaths.length, imagePaths.length);
   assert.ok(webpPaths.every((imagePath) => imagePath.endsWith('.optimized.webp')));
   assert.ok(webpPaths.every((imagePath) => fs.existsSync(
-    path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)))
+    path.join(outputDirectory, decodeURIComponent(imagePath.slice(1)))
   )));
 
   const jpegImageBytes = [...new Set(imagePaths)].reduce((sum, imagePath) => {
-    const imagePathOnDisk = path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)));
+    const imagePathOnDisk = path.join(outputDirectory, decodeURIComponent(imagePath.slice(1)));
     const imageBytes = fs.statSync(imagePathOnDisk).size;
     assert.ok(imageBytes < 500_000, `${imagePath} JPEG fallback should be optimized for older mobile browsers`);
     return sum + imageBytes;
   }, 0);
   const webpImageBytes = [...new Set(webpPaths)].reduce((sum, imagePath) => {
-    const imagePathOnDisk = path.join(outputDirectory, decodeURIComponent(imagePath.slice('/alenas-modas/'.length)));
+    const imagePathOnDisk = path.join(outputDirectory, decodeURIComponent(imagePath.slice(1)));
     const imageBytes = fs.statSync(imagePathOnDisk).size;
     assert.ok(imageBytes < 500_000, `${imagePath} WebP should be optimized for mobile`);
     return sum + imageBytes;
