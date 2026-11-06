@@ -29,7 +29,7 @@
     autoplayTimer = window.setTimeout(() => {
       showSlide(activeIndex + 1);
       scheduleAutoplay();
-    }, 5000);
+    }, 3000);
   };
 
   const pause = () => {
