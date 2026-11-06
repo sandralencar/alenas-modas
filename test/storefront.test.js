@@ -61,8 +61,8 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
   assert.match(html, /2 sutiãs por R\$ 74,90/);
   assert.match(html, /G1 ao G4 por R\$ 99,90/);
   assert.match(html, /Escolher minha dupla/);
-  assert.match(html, /1 sutiã por R\$ 35,00/);
-  assert.match(html, /G1 ao G4 por R\$ 45,00/);
+  assert.match(html, /1 sutiã por R\$ 40,00/);
+  assert.match(html, /G1 ao G4 por R\$ 50,00/);
   assert.match(html, /Ver modelos/);
   assert.match(html, /id="catalogo-trio"/);
   assert.match(html, /id="catalogo-dupla"/);
@@ -131,7 +131,7 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
   assert.match(html, /do G1 ao G4, R\$ 134,90/);
   assert.ok(html.indexOf('Trio por <strong>R$ 99,90</strong>') < html.indexOf('COMBO PARA FLORESCER'));
   assert.match(html, /Cada foto mostra um kit com 2 sutiãs · P a G: R\$ 74,90 · G1 a G4: R\$ 99,90/);
-  assert.match(html, /1 sutiã: R\$ 35,00 \(P a G\) ou R\$ 45,00 \(G1 a G4\)/);
+  assert.match(html, /1 sutiã: R\$ 40,00 \(P a G\) ou R\$ 50,00 \(G1 a G4\)/);
   assert.match(html, /Frete grátis para Itapevi\/SP/);
   assert.match(html, /MAIS DE 25 ANOS DE HISTÓRIA/);
   assert.match(html, /uma história feita à mão, com cuidado em cada costura/i);
@@ -155,7 +155,7 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
 
   const prices = [...html.matchAll(/data-prices="([^"]+)"/g)]
     .map(([, value]) => JSON.parse(value.replace(/&#34;/g, '"')));
-  assert.ok(prices.some((price) => price.P === 3500 && price.G === 3500 && price.G1 === 4500 && price.G4 === 4500));
+  assert.ok(prices.some((price) => price.P === 4000 && price.G === 4000 && price.G1 === 5000 && price.G4 === 5000));
   assert.ok(prices.some((price) => price.P === 7490 && price.G1 === 9990 && price.G2 === 9990));
   assert.ok(prices.some((price) => price.P === 9990 && price.G1 === 13490 && price.G4 === 13490));
 
@@ -173,10 +173,10 @@ test('vitrine mostra as imagens internas e orienta concluir o pedido no WhatsApp
 });
 
 test('preços por quantidade seguem a tabela em cada faixa de tamanho', () => {
-  assert.deepEqual([1, 2, 3].map((quantity) => priceForQuantity(quantity, 'standard').total), [3500, 7490, 9990]);
-  assert.deepEqual([1, 2, 3].map((quantity) => priceForQuantity(quantity, 'extended').total), [4500, 9990, 13490]);
-  assert.deepEqual([4, 5, 6].map((quantity) => priceForQuantity(quantity, 'standard').total), [13490, 17480, 19980]);
-  assert.deepEqual([4, 5, 6].map((quantity) => priceForQuantity(quantity, 'extended').total), [17990, 23480, 26980]);
+  assert.deepEqual([1, 2, 3].map((quantity) => priceForQuantity(quantity, 'standard').total), [4000, 7490, 9990]);
+  assert.deepEqual([1, 2, 3].map((quantity) => priceForQuantity(quantity, 'extended').total), [5000, 9990, 13490]);
+  assert.deepEqual([4, 5, 6].map((quantity) => priceForQuantity(quantity, 'standard').total), [13990, 17480, 19980]);
+  assert.deepEqual([4, 5, 6].map((quantity) => priceForQuantity(quantity, 'extended').total), [18490, 23480, 26980]);
 });
 
 test('sacola agrupa produtos adicionados separadamente e atualiza quantidades e remoções', () => {
@@ -190,7 +190,7 @@ test('sacola agrupa produtos adicionados separadamente e atualiza quantidades e 
   assert.equal(calculateCart([extendedProduct, { ...extendedProduct, size: 'G2' }, { ...extendedProduct, size: 'G3' }]).total, 13490);
   assert.equal(calculateCart([{ ...firstProduct, quantity: 3 }]).total, 9990);
   assert.equal(calculateCart([{ ...firstProduct, quantity: 2 }, secondProduct]).total, 9990);
-  assert.equal(calculateCart([secondProduct]).total, 3500);
+  assert.equal(calculateCart([secondProduct]).total, 4000);
   assert.equal(calculateCart([]).total, 0);
 });
 

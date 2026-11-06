@@ -1,7 +1,7 @@
 (function initializeStorePricing(root) {
   const sizeBands = {
-    standard: { label: 'P, M e G', single: 3500, pair: 7490, trio: 9990 },
-    extended: { label: 'G1 a G4', single: 4500, pair: 9990, trio: 13490 }
+    standard: { label: 'P, M e G', single: 4000, pair: 7490, trio: 9990 },
+    extended: { label: 'G1 a G4', single: 5000, pair: 9990, trio: 13490 }
   };
   const piecesPerProductType = { unidade: 1, dupla: 2, trio: 3 };
 

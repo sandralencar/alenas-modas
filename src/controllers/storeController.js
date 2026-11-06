@@ -6,7 +6,7 @@ const imageGroups = [
   { directory: 'sutiãs vitrine unidade e trio', type: 'unidade' }
 ];
 const pricesByType = {
-  unidade: { P: 3500, M: 3500, G: 3500, G1: 4500, G2: 4500, G3: 4500, G4: 4500 },
+  unidade: { P: 4000, M: 4000, G: 4000, G1: 5000, G2: 5000, G3: 5000, G4: 5000 },
   dupla: { P: 7490, M: 7490, G: 7490, G1: 9990, G2: 9990, G3: 9990, G4: 9990 },
   trio: { P: 9990, M: 9990, G: 9990, G1: 13490, G2: 13490, G3: 13490, G4: 13490 }
 };
@@ -111,9 +111,9 @@ function getHomeData({ sellerNumber = process.env.WHATSAPP_SELLER_NUMBER || '551
       {
         eyebrow: 'SUTIÃ INDIVIDUAL',
         title: 'Escolha seu favorito',
-        offer: '1 sutiã por R$ 35,00',
+        offer: '1 sutiã por R$ 40,00',
         sizes: 'Tamanhos P ao G',
-        extendedSizes: 'G1 ao G4 por R$ 45,00',
+        extendedSizes: 'G1 ao G4 por R$ 50,00',
         action: 'Ver modelos',
         href: '#catalogo-individual',
         product: featuredProduct('Sutiã azul real em cetim elegante.png')

@@ -40,7 +40,7 @@ Ao abrir o pedido, a mensagem do WhatsApp inclui os nomes das peças, tamanhos, 
 
 | Oferta | Regra |
 |---|---|
-| Sutiã unitário | R$ 35,00 — tamanhos P, M e G; R$ 45,00 — tamanhos G1 a G4 |
+| Sutiã unitário | R$ 40,00 — tamanhos P, M e G; R$ 50,00 — tamanhos G1 a G4 |
 | Combo Primavera | 3 modelos diferentes de sutiã unitário, por R$ 99,90; os tamanhos P, M e G podem variar |
 | 2 sutiãs | Total por faixa: R$ 74,90 em P, M e G; R$ 99,90 em G1, G2, G3 e G4 |
 | 3 sutiãs | Total por faixa: R$ 99,90 em P, M e G; R$ 134,90 em G1, G2, G3 e G4 |
