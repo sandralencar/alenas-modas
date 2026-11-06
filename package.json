@@ -8,7 +8,7 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "build": "node scripts/build-static.js",
-    "check": "node --check src/server.js && node --check src/app.js && node --check src/controllers/storeController.js && node --check src/routes/storeRoutes.js && node --check src/public/js/main.js && node --check scripts/build-static.js",
+    "check": "node --check src/server.js && node --check src/app.js && node --check src/controllers/storeController.js && node --check src/routes/storeRoutes.js && node --check src/public/js/carousel.js && node --check src/public/js/pricing.js && node --check src/public/js/main.js && node --check scripts/build-static.js",
     "test": "node --test"
   },
   "engines": {

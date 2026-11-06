@@ -1,14 +1,13 @@
 const cart = new Map();
 const cartDialog = document.querySelector('[data-cart-dialog]');
 const cartItems = document.querySelector('[data-cart-items]');
-const cartPromotions = document.querySelector('[data-promo-summary]');
+const cartPricingSummary = document.querySelector('[data-cart-pricing]');
 const cartCount = document.querySelector('[data-cart-count]');
 const cartEmpty = document.querySelector('[data-cart-empty]');
 const checkoutButton = document.querySelector('[data-checkout]');
 const cartStatus = document.querySelector('[data-cart-status]');
 const liveStatus = document.querySelector('[data-live-status]');
 const cartTotal = document.querySelector('[data-cart-total]');
-const cartSavings = document.querySelector('[data-cart-savings]');
 const imageViewer = document.querySelector('[data-image-viewer]');
 const imageViewerImage = imageViewer.querySelector('[data-image-viewer-image]');
 const imageViewerTitle = imageViewer.querySelector('[data-image-viewer-title]');
@@ -49,11 +48,6 @@ function getPrice(card, size) {
 function updateProductPrice(card) {
   const size = card.querySelector('[data-product-size]').value;
   card.querySelector('[data-product-price]').textContent = currency.format(getPrice(card, size) / 100);
-}
-
-function getPublicImageUrl(imagePath) {
-  const assetPath = imagePath.replace(/^\/+/, '');
-  return new URL(assetPath, 'https://raw.githubusercontent.com/sandralencar/alenas-modas/main/src/public/').href;
 }
 
 function getLocalImageUrl(imagePath) {
@@ -129,43 +123,6 @@ function closeImageViewer() {
   imageViewerImage.removeAttribute('src');
 }
 
-function createPromoBundles() {
-  const models = new Map();
-
-  for (const item of cart.values()) {
-    if (item.type !== 'unidade' || !['P', 'M', 'G'].includes(item.size)) continue;
-    let model = models.get(item.id);
-    if (!model) {
-      model = { id: item.id, name: item.name, sizes: new Map() };
-      models.set(item.id, model);
-    }
-    model.sizes.set(item.size, item.quantity);
-  }
-
-  const bundles = [];
-  while (true) {
-    const available = [...models.values()]
-      .map((model) => ({
-        ...model,
-        quantity: [...model.sizes.values()].reduce((sum, quantity) => sum + quantity, 0)
-      }))
-      .filter((model) => model.quantity > 0)
-      .sort((first, second) => second.quantity - first.quantity || first.id.localeCompare(second.id));
-
-    if (available.length < 3) break;
-
-    bundles.push(available.slice(0, 3).map((model) => {
-      const size = [...model.sizes.entries()]
-        .filter(([, quantity]) => quantity > 0)
-        .sort((first, second) => second[1] - first[1] || first[0].localeCompare(second[0]))[0][0];
-      model.sizes.set(size, model.sizes.get(size) - 1);
-      return { name: model.name, size };
-    }));
-  }
-
-  return bundles;
-}
-
 function isItapeviAddress() {
   return address
     && address.uf === 'SP'
@@ -203,21 +160,14 @@ function updateShippingStatus() {
 
 function updateCart() {
   const quantity = [...cart.values()].reduce((total, item) => total + item.quantity, 0);
-  const originalTotal = [...cart.values()].reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const bundles = createPromoBundles();
-  const savings = bundles.length * (3 * 4500 - 9990);
-  const total = originalTotal - savings;
-  const enteredCep = cepInput.value.replace(/\D/g, '');
-  const addressReady = address && address.cep === enteredCep && addressNumber.value.trim();
+  const pricing = StorePricing.calculateCart([...cart.values()]);
 
   cartCount.textContent = String(quantity);
   cartItems.replaceChildren();
-  cartPromotions.replaceChildren();
+  cartPricingSummary.replaceChildren();
   cartEmpty.hidden = quantity > 0;
-  cartTotal.textContent = currency.format(total / 100);
-  cartSavings.hidden = savings === 0;
-  cartSavings.textContent = savings ? `Você economizou ${currency.format(savings / 100)} na promoção de primavera.` : '';
-  checkoutButton.disabled = quantity === 0 || !paymentMethod.value || !addressReady;
+  cartTotal.textContent = currency.format(pricing.total / 100);
+  checkoutButton.disabled = quantity === 0 || !/^\d{10,15}$/.test(whatsAppNumber || '');
 
   for (const [key, item] of cart) {
     const row = document.createElement('li');
@@ -251,7 +201,9 @@ function updateCart() {
     details.append(name);
 
     const price = document.createElement('span');
-    price.textContent = `${item.quantity} × ${currency.format(item.price / 100)} = ${currency.format(item.price * item.quantity / 100)}`;
+    const piecesPerProduct = item.type === 'dupla' ? 2 : item.type === 'trio' ? 3 : 1;
+    const pieces = item.quantity * piecesPerProduct;
+    price.textContent = `${item.quantity} ${item.type === 'unidade' ? 'unidade' : 'kit'}${item.quantity === 1 ? '' : 's'} · ${pieces} ${pieces === 1 ? 'sutiã' : 'sutiãs'} na faixa`;
     details.append(price);
 
     const controls = document.createElement('div');
@@ -279,17 +231,22 @@ function updateCart() {
     cartItems.append(row);
   }
 
-  bundles.forEach((bundle, index) => {
+  pricing.groups.forEach((group) => {
     const row = document.createElement('li');
     row.className = 'cart-promo';
     const heading = document.createElement('strong');
-    heading.textContent = `Combo Primavera ${bundles.length > 1 ? `${index + 1} · ` : ''}3 sutiãs por R$ 99,90`;
+    heading.textContent = `${group.quantity} ${group.quantity === 1 ? 'sutiã' : 'sutiãs'} nos tamanhos ${group.label}`;
     const detail = document.createElement('span');
-    detail.textContent = bundle.map((item) => `${item.name} (${item.size})`).join(' + ');
-    const discount = document.createElement('em');
-    discount.textContent = 'Desconto de R$ 35,10 aplicado';
-    row.append(heading, detail, discount);
-    cartPromotions.append(row);
+    const breakdown = [
+      group.trios && `${group.trios} kit${group.trios === 1 ? '' : 's'} de 3`,
+      group.pairs && `${group.pairs} kit de 2`,
+      group.singles && `${group.singles} unidade${group.singles === 1 ? '' : 's'}`
+    ].filter(Boolean);
+    detail.textContent = breakdown.join(' + ');
+    const total = document.createElement('em');
+    total.textContent = currency.format(group.total / 100);
+    row.append(heading, detail, total);
+    cartPricingSummary.append(row);
   });
 
   updateShippingStatus();
@@ -310,6 +267,7 @@ async function lookupAddress() {
   const cep = cepInput.value.replace(/\D/g, '');
   if (!/^\d{8}$/.test(cep) || requestedCep === cep || (address && address.cep === cep)) return;
 
+  cartStatus.textContent = '';
   requestedCep = cep;
   const requestId = ++lookupRequest;
   address = null;
@@ -443,7 +401,6 @@ document.querySelectorAll('[data-product-id]').forEach((card) => {
         name: card.dataset.productName,
         image: card.dataset.productFallbackImage || getLocalImageUrl(card.dataset.productImage),
         webpImage: card.dataset.productDisplayImage,
-        shareImage: getPublicImageUrl(card.dataset.productImage),
         type: card.dataset.productType,
         size,
         price: getPrice(card, size),
@@ -458,7 +415,7 @@ document.querySelectorAll('[data-product-id]').forEach((card) => {
     card.querySelector('[data-quantity-action="decrease"]').disabled = true;
     card.querySelector('[data-quantity-action="increase"]').disabled = false;
     updateCart();
-    showAddedMessage(`${addedQuantity} ${addedQuantity === 1 ? 'peça adicionada' : 'peças adicionadas'} à sacola. Combo Primavera: 3 modelos diferentes por R$ 99,90.`);
+    showAddedMessage(`${addedQuantity} ${addedQuantity === 1 ? 'peça adicionada' : 'peças adicionadas'} à sacola. O total é calculado pela quantidade e faixa de tamanho.`);
   });
 });
 
@@ -481,6 +438,7 @@ cartItems.addEventListener('click', (event) => {
 });
 
 cepInput.addEventListener('input', () => {
+  cartStatus.textContent = '';
   const digits = cepInput.value.replace(/\D/g, '').slice(0, 8);
   cepInput.value = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
   if (digits !== requestedCep) {
@@ -500,13 +458,17 @@ cepInput.addEventListener('input', () => {
   if (digits.length === 8) lookupAddress();
 });
 
-addressNumber.addEventListener('input', updateCart);
+addressNumber.addEventListener('input', () => {
+  cartStatus.textContent = '';
+  updateCart();
+});
 addressComplement.addEventListener('input', updateCart);
 
 addressNoNumber.addEventListener('change', () => {
   addressNumber.disabled = addressNoNumber.checked;
   addressNumber.required = !addressNoNumber.checked;
   addressNumber.value = addressNoNumber.checked ? 'S/N' : '';
+  cartStatus.textContent = '';
   updateCart();
 });
 
@@ -517,14 +479,37 @@ checkoutButton.addEventListener('click', () => {
   }
 
   if (!paymentMethod.value) {
-    cartStatus.textContent = 'Escolha uma forma de pagamento para continuar.';
+    cartStatus.textContent = 'Falta escolher a forma de pagamento.';
     paymentMethod.focus();
     return;
   }
 
-  if (!address || address.cep !== cepInput.value.replace(/\D/g, '') || !addressNumber.value.trim()) {
-    cartStatus.textContent = 'Consulte seu CEP e informe o número do endereço para continuar.';
+  const enteredCep = cepInput.value.replace(/\D/g, '');
+  if (!enteredCep) {
+    cartStatus.textContent = 'Falta preencher o campo CEP.';
     cepInput.focus();
+    return;
+  }
+
+  if (enteredCep.length !== 8) {
+    cartStatus.textContent = 'O CEP está incompleto. Preencha os 8 números.';
+    cepInput.focus();
+    return;
+  }
+
+  if (!address || address.cep !== enteredCep) {
+    cartStatus.textContent = isLookingUp
+      ? 'Aguarde a consulta do CEP para continuar.'
+      : cepErrorMessage
+        ? 'Confira o campo CEP e consulte novamente para preencher o endereço.'
+        : 'Consulte o CEP para preencher o endereço antes de continuar.';
+    cepInput.focus();
+    return;
+  }
+
+  if (!addressNumber.value.trim()) {
+    cartStatus.textContent = 'Falta preencher o Número do endereço ou marcar “Endereço sem número”.';
+    addressNumber.focus();
     return;
   }
 
@@ -533,13 +518,16 @@ checkoutButton.addEventListener('click', () => {
     return;
   }
 
-  const orderLines = [...cart.values()].map(({ name, size, price, quantity, shareImage }) => {
-    return `• ${quantity}x ${name} — tamanho ${size} — ${currency.format(price / 100)} cada\n  Imagem: ${shareImage}`;
+  const items = [...cart.values()];
+  const pricing = StorePricing.calculateCart(items);
+  const orderLines = items.map(({ name, size, quantity, type }) => {
+    const piecesPerProduct = type === 'dupla' ? 2 : type === 'trio' ? 3 : 1;
+    const pieces = quantity * piecesPerProduct;
+    return `• ${quantity}x ${name} — tamanho ${size} — ${pieces} ${pieces === 1 ? 'sutiã' : 'sutiãs'}`;
   });
-  const bundles = createPromoBundles();
-  const originalTotal = [...cart.values()].reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const savings = bundles.length * (3 * 4500 - 9990);
-  const total = originalTotal - savings;
+  const sizeBandTotals = pricing.groups.map((group) => {
+    return `• Tamanhos ${group.label} (${group.quantity} ${group.quantity === 1 ? 'sutiã' : 'sutiãs'}): ${currency.format(group.total / 100)}`;
+  });
   const deliveryAddress = [
     address.logradouro,
     addressNumber.value.trim(),
@@ -553,9 +541,11 @@ checkoutButton.addEventListener('click', () => {
     'Olá! Gostaria de concluir este pedido da coleção de primavera Alenas Lingerie:',
     '',
     ...orderLines,
-    ...bundles.map((bundle, index) => `🌷 Combo Primavera ${bundles.length > 1 ? index + 1 : ''}: ${bundle.map((item) => `${item.name} (${item.size})`).join(' + ')} — R$ 99,90 (economia de R$ 35,10)`),
     '',
-    `Total dos produtos: ${currency.format(total / 100)}`,
+    'Totais por faixa de tamanho:',
+    ...sizeBandTotals,
+    '',
+    `Total dos produtos: ${currency.format(pricing.total / 100)}`,
     `Forma de pagamento: ${paymentMethod.value}`,
     `Entrega: ${delivery}`,
     `Endereço: ${deliveryAddress}`
@@ -596,7 +586,7 @@ if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-mot
       entry.target.classList.add('is-visible');
       observer.unobserve(entry.target);
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -32px 0px' });
+  }, { threshold: 0, rootMargin: '0px 0px -32px 0px' });
 
   document.body.classList.add('has-motion');
   document.querySelectorAll('.reveal-on-view, .product-card').forEach((element) => {

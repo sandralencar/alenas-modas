@@ -13,7 +13,7 @@ Vitrine online da coleção de primavera da Alenas Lingerie, marca com mais de 2
 
 1. Instale o Node.js 20 ou superior.
 2. Copie `.env.example` para `.env`.
-3. Configure `WHATSAPP_SELLER_NUMBER` com o número comercial no formato internacional, somente dígitos. O número atual é `5588988573785`.
+3. Configure `WHATSAPP_SELLER_NUMBER` com o número comercial no formato internacional, somente dígitos. O número atual é `5511987460976`.
 4. Execute `npm install`.
 5. Inicie com `npm run dev` ou `npm start`.
 6. Abra `http://localhost:3000`.
@@ -26,32 +26,33 @@ O Express continua disponível para desenvolvimento local, mas o GitHub Pages n�
 2. Envie as alterações para a branch `main`. O workflow instala as dependências, executa as verificações e os testes, gera o site e publica o Pages.
 3. Após o primeiro deploy bem-sucedido, acesse `https://alenasmoda.com.br`.
 
-Para gerar os arquivos localmente, execute `npm run build`. As imagens originais continuam no catálogo e nos links enviados pelo WhatsApp; somente as cópias do site são otimizadas. As imagens do catálogo usam carregamento adiado, dimensões explícitas e imagens alternativas para compatibilidade; animações de entrada ficam desativadas em telas pequenas para não esconder conteúdo se o navegador não disparar o observador. O site estático também publica uma política CSP por meta tag. O resultado fica em `dist/` e usa a raiz do domínio por padrão, como em `https://alenasmoda.com.br`. Para publicar em um subcaminho, defina `BASE_PATH` antes do build (por exemplo, `/alenas-modas` para `https://sandralencar.github.io/alenas-modas/`).
+Para gerar os arquivos localmente, execute `npm run build`. As imagens originais continuam no catálogo; somente as cópias do site são otimizadas. As mensagens do WhatsApp incluem os dados do pedido, sem links para fotografias. As imagens do catálogo usam carregamento adiado, dimensões explícitas e imagens alternativas para compatibilidade; animações de entrada ficam desativadas em telas pequenas para não esconder conteúdo se o navegador não disparar o observador. O site estático também publica uma política CSP por meta tag. O resultado fica em `dist/` e usa a raiz do domínio por padrão, como em `https://alenasmoda.com.br`. Para publicar em um subcaminho, defina `BASE_PATH` antes do build (por exemplo, `/alenas-modas` para `https://sandralencar.github.io/alenas-modas/`).
 
 ## Catálogo de imagens
 
-As imagens em `src/public/img/dupla/` são exibidas como duplas de sutiãs. As imagens em `src/public/img/sutiãs vitrine unidade e trio/` são usadas para sutiãs unitários; arquivos cujo nome contém “trio” são classificados como trios. O nome de cada imagem aparece como nome do produto.
+O catálogo agrupa primeiro os kits com 3 sutiãs, depois os kits com 2 sutiãs e, por fim, os sutiãs individuais. As imagens em `src/public/img/dupla/` são exibidas conforme a composição identificada de cada produto. As imagens em `src/public/img/sutiãs vitrine unidade e trio/` são usadas para sutiãs unitários; arquivos cujo nome contém “trio” são classificados como trios. O nome de cada imagem aparece como nome do produto.
 
 Para incluir ou retirar peças da vitrine, adicione ou remova imagens dessas pastas. As imagens das ofertas da página são escolhidas automaticamente a partir dos produtos disponíveis. A sacola também mostra a foto do item selecionado.
 
-Ao abrir o pedido, a mensagem do WhatsApp inclui um link público para a imagem de cada item, hospedada no repositório. O link pré-preenchido do WhatsApp aceita texto e links; anexar os arquivos de imagem diretamente exigiria uma integração com a WhatsApp Business Platform.
+Ao abrir o pedido, a mensagem do WhatsApp inclui os nomes das peças, tamanhos, quantidades, totais, pagamento e endereço, sem URLs de fotografias.
 
 ## Coleção de primavera e ofertas
 
 | Oferta | Regra |
 |---|---|
-| Sutiã unitário | R$ 45,00 — tamanhos P, M e G |
+| Sutiã unitário | R$ 35,00 — tamanhos P, M e G; R$ 45,00 — tamanhos G1 a G4 |
 | Combo Primavera | 3 modelos diferentes de sutiã unitário, por R$ 99,90; os tamanhos P, M e G podem variar |
-| Dupla de sutiãs | 2 sutiãs, mesmo tamanho: R$ 74,90 em P, M, G e G1; R$ 99,90 em G2, G3 e G4 |
+| 2 sutiãs | Total por faixa: R$ 74,90 em P, M e G; R$ 99,90 em G1, G2, G3 e G4 |
+| 3 sutiãs | Total por faixa: R$ 99,90 em P, M e G; R$ 134,90 em G1, G2, G3 e G4 |
 | Trio de sutiãs | R$ 99,90 em P, M e G; R$ 134,90 em G1, G2, G3 e G4 |
 | Entrega | Frete grátis em Itapevi/SP; outras localidades são combinadas pelo WhatsApp |
 
-Cada grupo de três modelos unitários diferentes nos tamanhos P, M ou G recebe o Combo Primavera. O carrinho identifica e detalha os modelos incluídos, o desconto aplicado e o total. As unidades excedentes permanecem pelo preço individual.
+Os totais são calculados pela quantidade de sutiãs selecionados em cada faixa, mesmo quando os produtos são adicionados separadamente. A sacola e a mensagem do WhatsApp usam o mesmo cálculo; não são exibidas economias ou descontos não previstos na tabela.
 
 ## Checkout pelo WhatsApp
 
 1. Escolha um produto, tamanho e quantidade.
-2. Confira fotos, promoções, desconto e total na sacola.
+2. Confira fotos, preços por faixa de tamanho e total na sacola.
 3. Selecione PIX, cartão de crédito, cartão de débito ou dinheiro.
 4. Informe o CEP. O endereço é preenchido pela consulta ao ViaCEP; informe o número ou marque “Endereço sem número” e, se necessário, o complemento.
 5. O pedido abre no WhatsApp com os produtos, tamanhos, quantidades, links das imagens, pagamento e endereço.

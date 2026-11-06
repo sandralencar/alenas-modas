@@ -11,6 +11,7 @@ const templatePath = path.join(projectRoot, 'src', 'views', 'store', 'home.ejs')
 const configuredBasePath = process.env.BASE_PATH || '/';
 const basePath = configuredBasePath === '/' ? '' : configuredBasePath.replace(/\/+$/, '');
 const sourceImageDirectory = path.join(publicDirectory, 'img');
+const staticSellerNumber = '5511987460976';
 
 if ((basePath && !basePath.startsWith('/')) || basePath.includes('..') || /[?#]/.test(basePath)) {
   throw new Error('BASE_PATH must be a URL path such as /alenas-modas or /.');
@@ -20,7 +21,7 @@ async function build() {
   fs.rmSync(outputDirectory, { recursive: true, force: true });
   fs.mkdirSync(outputDirectory, { recursive: true });
 
-  const homeData = getHomeData();
+  const homeData = getHomeData({ sellerNumber: staticSellerNumber });
   const optimizedImages = new Map();
   for (const product of homeData.products) {
     let displayImages = optimizedImages.get(product.image);
@@ -62,6 +63,7 @@ async function build() {
   fs.writeFileSync(path.join(outputDirectory, 'index.html'), html);
   fs.cpSync(path.join(publicDirectory, 'css'), path.join(outputDirectory, 'css'), { recursive: true });
   fs.cpSync(path.join(publicDirectory, 'js'), path.join(outputDirectory, 'js'), { recursive: true });
+  fs.copyFileSync(path.join(publicDirectory, 'favicon.svg'), path.join(outputDirectory, 'favicon.svg'));
   fs.writeFileSync(path.join(outputDirectory, '.nojekyll'), '');
 
   const originalBytes = homeData.products.reduce((sum, product) => {
